@@ -8,7 +8,7 @@ Generate and edit images using Google's Gemini image models (Nano Banana / Nano 
 
 ```bash
 # Add this repo as a marketplace
-claude plugin marketplace add github:luischavesrodriguez/cc-gemini-image-plugin
+claude plugin marketplace add lucharo/cc-gemini-image-plugin
 
 # Install the plugin
 claude plugin install gemini-image
@@ -18,7 +18,7 @@ claude plugin install gemini-image
 
 ```bash
 # Clone the repo
-git clone https://github.com/luischavesrodriguez/cc-gemini-image-plugin.git
+git clone https://github.com/lucharo/cc-gemini-image-plugin.git
 
 # Add as local marketplace
 claude plugin marketplace add /path/to/cc-gemini-image-plugin
