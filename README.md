@@ -1,5 +1,7 @@
 # CC Gemini Image Plugin
 
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/lucharo)
+
 Generate and edit images using Google's Gemini image models (Nano Banana / Nano Banana Pro) in Claude Code.
 
 ## Installation
