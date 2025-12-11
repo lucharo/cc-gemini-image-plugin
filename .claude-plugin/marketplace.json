@@ -1,0 +1,16 @@
+{
+  "name": "cc-gemini-image-plugin",
+  "version": "1.0.0",
+  "description": "Gemini image generation plugin for Claude Code",
+  "owner": {
+    "name": "Luis"
+  },
+  "plugins": [
+    {
+      "name": "gemini-image",
+      "version": "0.1.0",
+      "description": "Generate and edit images using Google's Gemini image models (Nano Banana / Nano Banana Pro)",
+      "source": "."
+    }
+  ]
+}

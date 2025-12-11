@@ -1,0 +1,9 @@
+{
+  "name": "gemini-image",
+  "version": "0.1.0",
+  "description": "Generate and edit images using Google's Gemini image models (Nano Banana / Nano Banana Pro)",
+  "author": {
+    "name": "Luis"
+  },
+  "keywords": ["image", "generation", "gemini", "ai", "editing"]
+}
