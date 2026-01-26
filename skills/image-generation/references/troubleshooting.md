@@ -34,6 +34,62 @@ This opens a browser for Google authentication and saves credentials locally.
 2. Request quota increase if needed
 3. Use ADC instead of API key for higher limits
 
+## Model and API Issues
+
+### "Model not found" or "Unknown model"
+
+**Cause:** Using a deprecated or invalid model name.
+
+**Solutions:**
+1. Check for deprecated models:
+   - `gemini-2.5-flash-image-preview` is shut down - use `gemini-2.5-flash-image`
+   - Imagen 3 models are deprecated - use Imagen 4
+2. Verify correct model spelling
+3. Check the models.md reference for current model names
+
+### "responseModalities required" or similar config error
+
+**Cause:** Missing required configuration for image generation.
+
+**Solution:** Always include `response_modalities` in your config:
+
+```python
+from google.genai import types
+
+config = types.GenerateContentConfig(
+    response_modalities=['TEXT', 'IMAGE']  # Required!
+)
+
+response = client.models.generate_content(
+    model="gemini-3-pro-image-preview",
+    contents="Your prompt",
+    config=config
+)
+```
+
+### Imagen 3 models not working
+
+**Cause:** Imagen 3 has been shut down and replaced by Imagen 4.
+
+**Solution:** Update your code to use Imagen 4 models:
+- `imagen-3.0-generate-001` -> `imagen-4.0-generate-001`
+- `imagen-3.0-fast-generate-001` -> `imagen-4.0-fast-generate-001`
+
+### Resolution parameter not working
+
+**Cause:** Resolution values are case-sensitive.
+
+**Solution:** Use uppercase: `"1K"`, `"2K"`, `"4K"` (not `"1k"`, `"2k"`, `"4k"`)
+
+```python
+config = types.GenerateContentConfig(
+    response_modalities=['TEXT', 'IMAGE'],
+    image_config=types.ImageConfig(
+        image_size="2K"  # Correct - uppercase
+    )
+)
+```
+
 ## No Image in Response
 
 ### Model returns text instead of image
@@ -64,6 +120,7 @@ for part in response.parts:
 1. Check network connectivity
 2. Verify model name is correct
 3. Try a simpler prompt to test
+4. Ensure `response_modalities` is set
 
 ## Performance Issues
 
@@ -73,7 +130,8 @@ for part in response.parts:
 
 | Cause | Solution |
 |-------|----------|
-| Using Pro model | Switch to Flash for faster results |
+| Using Pro model | Switch to Flash or Imagen Fast for faster results |
+| High resolution | Use 1K instead of 2K/4K |
 | Complex prompt | Simplify the prompt |
 | Network latency | Check connection speed |
 | API load | Retry after a few seconds |
@@ -98,8 +156,12 @@ async def generate_async():
 
 **Solutions:**
 1. Use `gemini-3-pro-image-preview` for higher resolution
-2. Be specific about quality in prompt: "high detail", "4K quality"
-3. Avoid conflicting style instructions
+2. Explicitly set resolution in config:
+   ```python
+   image_config=types.ImageConfig(image_size="2K")
+   ```
+3. Be specific about quality in prompt: "high detail", "4K quality"
+4. Avoid conflicting style instructions
 
 ### Text not rendering clearly
 
@@ -136,6 +198,19 @@ async def generate_async():
 2. Describe what to preserve: "Keep the person, change only the background"
 3. Use clear directional language: "Add a hat ON the person's head"
 
+### Imagen doesn't support editing
+
+**Cause:** Imagen 4 models only support generation, not editing.
+
+**Solution:** Use Gemini models for image editing:
+```python
+# This won't work with Imagen
+# generate_image("Edit this", input_image="photo.jpg", use_imagen=True)
+
+# Use Gemini instead
+generate_image("Edit this", input_image="photo.jpg", model="gemini-3-pro-image-preview")
+```
+
 ## Multi-Image Issues
 
 ### Style transfer not working
@@ -152,6 +227,14 @@ async def generate_async():
 2. Describe each image's role in the prompt
 3. Process one operation at a time for complex tasks
 
+### Too many reference images
+
+**Limits:**
+- Character consistency: up to 5 reference images
+- Object consistency: up to 6 reference images
+
+**Solution:** Select the most representative reference images within the limit.
+
 ## Chat/Multi-turn Issues
 
 ### Context lost between turns
@@ -159,7 +242,12 @@ async def generate_async():
 **Note:** Each turn in a chat maintains context, but be explicit:
 
 ```python
-chat = client.chats.create(model="gemini-3-pro-image-preview")
+chat = client.chats.create(
+    model="gemini-3-pro-image-preview",
+    config=types.GenerateContentConfig(
+        response_modalities=['TEXT', 'IMAGE']
+    )
+)
 
 # Be explicit about referencing previous generations
 response = chat.send_message("Create a house")
@@ -201,9 +289,15 @@ source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install google-genai pillow
 ```
 
+Or use uv for isolated execution:
+```bash
+uv run --with google-genai --with Pillow script.py
+```
+
 ## Getting Help
 
 If issues persist:
 1. Check Google AI documentation: https://ai.google.dev/docs
 2. Review API status: https://status.cloud.google.com/
 3. Verify your Google Cloud project settings
+4. Check the models.md reference for current model information
