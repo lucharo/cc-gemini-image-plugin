@@ -152,6 +152,10 @@ cc-gemini-image-plugin/
 
 ## Changelog
 
+### v0.4.0
+- Added `--refs` parameter for reference images (character/object consistency)
+- Documented reference image limits (character: 5, object: 6, style: 1-2)
+
 ### v0.3.0
 - Simplified to Gemini models only (removed Imagen 4)
 - Focus on `gemini-3-pro-image-preview` as default for best quality

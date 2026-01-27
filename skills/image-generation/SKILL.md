@@ -1,7 +1,7 @@
 ---
 name: Gemini Image Generation
 description: This skill should be used when the user asks to "generate an image", "create an image", "edit an image", "transform this image", "apply style to an image", "make a picture of", "create variations", or mentions "Gemini image", "Nano Banana", or any image generation/editing tasks. Provides guidance for using Google's Gemini image models.
-version: 0.3.0
+version: 0.4.0
 ---
 
 # Gemini Image Generation
@@ -29,6 +29,10 @@ uv run --with google-genai --with Pillow generate_image.py \
 # Fast iteration with Flash model
 uv run --with google-genai --with Pillow generate_image.py \
   "Quick sketch" -o draft.png -m gemini-2.5-flash-image
+
+# Character consistency with reference images
+uv run --with google-genai --with Pillow generate_image.py \
+  "Generate this character riding a bike" --refs char1.png char2.png -o biking.png
 ```
 
 Or import in Python:
@@ -105,6 +109,32 @@ response = client.models.generate_content(
     model="gemini-3-pro-image-preview",
     contents=["Transform into watercolor style", input_img],
     config=types.GenerateContentConfig(response_modalities=['TEXT', 'IMAGE'])
+)
+```
+
+## Reference Images
+
+Use reference images for consistency across generations:
+
+| Use Case | Max References |
+|----------|----------------|
+| Character consistency | Up to 5 images |
+| Object consistency | Up to 6 images |
+| Style transfer | 1-2 images |
+| Image editing | 1 image |
+
+```bash
+# CLI with --refs
+uv run ... generate_image.py "This character in a forest" \
+  --refs char1.png char2.png char3.png -o forest_scene.png
+```
+
+```python
+# Python API
+generate_image(
+    "Generate this character cooking dinner",
+    reference_images=["char_front.png", "char_side.png"],
+    output_path="cooking.png"
 )
 ```
 

@@ -26,6 +26,7 @@ def generate_image(
     prompt: str,
     output_path: str = "output.png",
     input_image: str | None = None,
+    reference_images: list[str] | None = None,
     model: str = "gemini-3-pro-image-preview",
     resolution: str = "1K",
     aspect_ratio: str = "1:1",
@@ -36,7 +37,11 @@ def generate_image(
     Args:
         prompt: Text description or editing instructions
         output_path: Where to save the result (default: output.png)
-        input_image: Optional path to image to edit
+        input_image: Optional path to image to edit (single image)
+        reference_images: Optional list of reference image paths for consistency
+            - Character consistency: up to 5 images
+            - Object consistency: up to 6 images
+            - Style transfer: 1-2 images
         model: Model to use:
             - "gemini-3-pro-image-preview" (default) - Best quality
             - "gemini-2.5-flash-image" - Faster, good for drafts
@@ -58,6 +63,12 @@ def generate_image(
 
         >>> generate_image("A panorama", resolution="2K", aspect_ratio="16:9")
         'output.png'
+
+        >>> generate_image(
+        ...     "Generate this character riding a bike",
+        ...     reference_images=["char1.png", "char2.png", "char3.png"]
+        ... )
+        'output.png'
     """
     # Initialize client
     # Priority: GEMINI_API_KEY > Vertex AI (ADC with project/location)
@@ -78,6 +89,13 @@ def generate_image(
 
     # Build contents
     contents = [prompt]
+
+    # Add reference images first (for consistency workflows)
+    if reference_images:
+        for ref_path in reference_images:
+            contents.append(Image.open(ref_path))
+
+    # Add input image (for editing)
     if input_image:
         contents.append(Image.open(input_image))
 
@@ -116,6 +134,8 @@ if __name__ == "__main__":
     parser.add_argument("prompt", help="Text description or editing instructions")
     parser.add_argument("-o", "--output", default="output.png", help="Output path (default: output.png)")
     parser.add_argument("-i", "--input", help="Input image to edit (optional)")
+    parser.add_argument("--refs", nargs="+", metavar="IMG",
+                        help="Reference images for consistency (character: up to 5, object: up to 6)")
     parser.add_argument("-m", "--model", default="gemini-3-pro-image-preview",
                         choices=["gemini-2.5-flash-image", "gemini-3-pro-image-preview"],
                         help="Model to use (default: gemini-3-pro-image-preview)")
@@ -132,6 +152,7 @@ if __name__ == "__main__":
         args.prompt,
         args.output,
         args.input,
+        args.refs,
         args.model,
         args.resolution,
         args.aspect_ratio,
