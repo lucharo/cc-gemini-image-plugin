@@ -156,7 +156,9 @@ response = chat.send_message("Add rain on the windows")
 
 ## Multi-Image Selection
 
-When generating variations, use the image grid selector:
+When generating variations, use the image grid selector.
+
+**IMPORTANT:** Always use `--open` to automatically open the grid in the user's browser.
 
 ```bash
 # Generate 4 variations with Flash (fast)
@@ -164,12 +166,12 @@ for i in 1 2 3 4; do
   uv run ... generate_image.py "A cafe, variation $i" -o /tmp/cafe_$i.png -m gemini-2.5-flash-image
 done
 
-# Create clickable grid
+# Create clickable grid and open in browser
 uv run $CLAUDE_PLUGIN_ROOT/skills/image-generation/scripts/image_grid.py \
   /tmp/cafe_*.png -o /tmp/grid.html --open
 ```
 
-Click preferred image to copy selection text, paste back to continue.
+The grid opens automatically. User clicks preferred image to copy selection text, then pastes back to continue.
 
 See `references/workflows.md` for complete workflow examples.
 
