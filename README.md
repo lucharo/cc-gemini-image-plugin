@@ -2,73 +2,44 @@
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/lucharo)
 
-Generate and edit images using Google's Gemini image models in Claude Code.
+A Claude Code plugin that lets you generate and edit images with Google's Gemini models. Ask for what you want in plain English and Claude handles the API calls.
 
 ## Installation
 
-### From GitHub
-
 ```bash
-# Add this repo as a marketplace
 claude plugin marketplace add lucharo/cc-gemini-image-plugin
-
-# Install the plugin (format: plugin-name@marketplace-name)
 claude plugin install gemini-image@cc-gemini-image-plugin
 ```
 
-Or use the interactive UI: run `/plugin`, go to **Discover** tab, find `gemini-image`.
+Or run `/plugin` in Claude Code and find `gemini-image` in the Discover tab.
 
-### From Local Path
+### Installing from a local clone
 
 ```bash
-# Clone the repo
 git clone https://github.com/lucharo/cc-gemini-image-plugin.git
-
-# Add as local marketplace
 claude plugin marketplace add /path/to/cc-gemini-image-plugin
-
-# Install
 claude plugin install gemini-image@cc-gemini-image-plugin
 ```
 
-## Prerequisites
+## Setup
 
-### Authentication (choose one)
-
-**Option 1: API Key (Recommended)**
-```bash
-export GEMINI_API_KEY="your-key-from-aistudio.google.com"
-# GOOGLE_API_KEY also works
-```
-
-**Option 2: Vertex AI with Application Default Credentials**
-```bash
-gcloud auth application-default login
-export GOOGLE_CLOUD_PROJECT="your-project-id"
-```
-
-### Dependencies
-
-No global install needed - uses `uv` for inline dependencies:
+You need a Gemini API key. Get one free at [AI Studio](https://aistudio.google.com/apikey).
 
 ```bash
-uv run --with google-genai --with Pillow script.py
+export GEMINI_API_KEY="your-key-here"
 ```
 
-## Features
+`GOOGLE_API_KEY` works too. If you prefer Vertex AI, run `gcloud auth application-default login` and set `GOOGLE_CLOUD_PROJECT`.
 
-- **Text-to-image generation** - Create images from text descriptions
-- **Image editing** - Transform existing images with text prompts
-- **Multi-image composition** - Style transfer, combining images
-- **Iterative editing** - Refine images through conversation
-- **Character/object consistency** - Maintain consistent subjects across generations
-- **Resolution control** - 1K, 2K, or 4K output
-- **Aspect ratio options** - 1:1, 3:4, 4:3, 9:16, 16:9
-- **Image grid selector** - Visual comparison for multi-image workflows
+No other dependencies to install. The scripts use `uv` to grab what they need on the fly.
+
+## What it does
+
+Text-to-image, image editing, style transfer, iterative refinement. You can keep a character or object looking consistent across multiple images. Output at 1K, 2K, or 4K in various aspect ratios. When you generate several variations, there's a grid selector to compare them side by side.
 
 ## Usage
 
-Once installed, simply ask Claude Code to generate or edit images:
+Talk to Claude like normal:
 
 - "Generate an image of a robot holding a banana"
 - "Edit this image to make the background blue"
@@ -76,51 +47,47 @@ Once installed, simply ask Claude Code to generate or edit images:
 - "Create a watercolor painting of a sunset"
 - "Generate 4 variations and show me a grid to choose from"
 
-Claude will use the Gemini image API automatically.
+Claude picks the right model and handles the rest.
 
-### CLI Script
-
-You can also use the helper script directly:
+### Using the scripts directly
 
 ```bash
 cd skills/image-generation/scripts
 
-# Generate an image
+# generate
 uv run --with google-genai --with Pillow generate_image.py "A cat in a spacesuit" -o cat.png
 
-# Edit an existing image
+# edit an existing image
 uv run --with google-genai --with Pillow generate_image.py "Make it blue" -i photo.jpg -o edited.png
 
-# High resolution with aspect ratio
+# 2K panorama
 uv run --with google-genai --with Pillow generate_image.py "A panorama" -o wide.png -r 2K -a 16:9
 ```
 
-### Image Grid Selector
+### Comparing variations
 
-When generating multiple variations, use the grid selector:
+Generate a few options, then open them in a grid:
 
 ```bash
-# Generate variations
 for i in 1 2 3 4; do
-  uv run --with google-genai --with Pillow generate_image.py "A cozy cafe, variation $i" -o cafe_$i.png -m gemini-2.5-flash-image
+  uv run --with google-genai --with Pillow generate_image.py "A cozy cafe" -o cafe_$i.png -m gemini-2.5-flash-image
 done
 
-# Create selection grid
 uv run image_grid.py cafe_*.png -o grid.html --open
 ```
 
-Click your preferred image to copy selection text, then paste it back to Claude.
+Click the one you like and it copies a selection string you can paste back to Claude.
 
 ## Models
 
-| Model | Best For | Resolution |
+| Model | Use case | Resolution |
 |-------|----------|------------|
 | `gemini-3-pro-image-preview` | Final quality, text in images (default) | 1K-4K |
-| `gemini-2.5-flash-image` | Fast iteration, drafts | 1K |
+| `gemini-2.5-flash-image` | Quick iterations, drafts | 1K |
 
 ## Pricing
 
-Approximate costs per image:
+Rough cost per image:
 
 | Resolution | Cost |
 |------------|------|
@@ -128,11 +95,9 @@ Approximate costs per image:
 | 2K (2048px) | ~$0.13 |
 | 4K (4096px) | ~$0.24 |
 
-See `references/pricing.md` for detailed pricing and cost optimization tips.
+More details in `references/pricing.md`.
 
-**Get an API key:** [AI Studio](https://aistudio.google.com/apikey)
-
-## Plugin Structure
+## Plugin structure
 
 ```
 cc-gemini-image-plugin/
@@ -155,30 +120,15 @@ cc-gemini-image-plugin/
 
 ## Changelog
 
-### v0.5.0
-- Auto-detect image resolution for cost calculation (no CLI flag needed)
-- Added pricing source reference for future updates
-- Updated plugin structure to match official Anthropic format
-- Fixed install instructions to use correct `plugin-name@marketplace-name` syntax
+**v0.5.0** - Resolution auto-detected for cost calculation, plugin structure matches official Anthropic format, fixed install syntax
 
-### v0.4.0
-- Added `--refs` parameter for reference images (character/object consistency)
-- Documented reference image limits (character: 5, object: 6, style: 1-2)
+**v0.4.0** - `--refs` flag for reference images (character/object consistency), documented image limits
 
-### v0.3.0
-- Simplified to Gemini models only (removed Imagen 4)
-- Focus on `gemini-3-pro-image-preview` as default for best quality
+**v0.3.0** - Dropped Imagen 4, focused on Gemini models only
 
-### v0.2.0
-- Added resolution control (1K, 2K, 4K)
-- Added aspect ratio options (1:1, 3:4, 4:3, 9:16, 16:9)
-- Added `response_modalities` config (required by API)
-- Added image grid selector for multi-image workflows
-- Added pricing reference documentation
-- Added character/object consistency examples
+**v0.2.0** - Resolution and aspect ratio controls, image grid selector, pricing docs
 
-### v0.1.0
-- Initial release with Gemini image generation and editing
+**v0.1.0** - Initial release
 
 ## License
 
