@@ -43,7 +43,6 @@ This opens a browser for Google authentication and saves credentials locally.
 **Solutions:**
 1. Check for deprecated models:
    - `gemini-2.5-flash-image-preview` is shut down - use `gemini-2.5-flash-image`
-   - Imagen 3 models are deprecated - use Imagen 4
 2. Verify correct model spelling
 3. Check the models.md reference for current model names
 
@@ -66,14 +65,6 @@ response = client.models.generate_content(
     config=config
 )
 ```
-
-### Imagen 3 models not working
-
-**Cause:** Imagen 3 has been shut down and replaced by Imagen 4.
-
-**Solution:** Update your code to use Imagen 4 models:
-- `imagen-3.0-generate-001` -> `imagen-4.0-generate-001`
-- `imagen-3.0-fast-generate-001` -> `imagen-4.0-fast-generate-001`
 
 ### Resolution parameter not working
 
@@ -130,7 +121,7 @@ for part in response.parts:
 
 | Cause | Solution |
 |-------|----------|
-| Using Pro model | Switch to Flash or Imagen Fast for faster results |
+| Using Pro model | Switch to Flash for faster results |
 | High resolution | Use 1K instead of 2K/4K |
 | Complex prompt | Simplify the prompt |
 | Network latency | Check connection speed |
@@ -197,19 +188,6 @@ async def generate_async():
 1. Be very specific about what to change
 2. Describe what to preserve: "Keep the person, change only the background"
 3. Use clear directional language: "Add a hat ON the person's head"
-
-### Imagen doesn't support editing
-
-**Cause:** Imagen 4 models only support generation, not editing.
-
-**Solution:** Use Gemini models for image editing:
-```python
-# This won't work with Imagen
-# generate_image("Edit this", input_image="photo.jpg", use_imagen=True)
-
-# Use Gemini instead
-generate_image("Edit this", input_image="photo.jpg", model="gemini-3-pro-image-preview")
-```
 
 ## Multi-Image Issues
 

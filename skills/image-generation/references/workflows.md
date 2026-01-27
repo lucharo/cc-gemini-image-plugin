@@ -69,6 +69,22 @@ uv run image_grid.py *.png -o grid.html --no-embed
 
 **Copy format variables:** `{label}`, `{filename}`, `{path}`
 
+## Two-Stage Workflow
+
+The recommended approach for best results:
+
+1. **Explore** with Flash (fast, cheap)
+2. **Finalize** with Pro (quality)
+
+```python
+# Stage 1: Quick drafts
+for i in range(5):
+    generate_image(prompt, output_path=f"draft_{i}.png", model="gemini-2.5-flash-image")
+
+# Stage 2: Final quality
+generate_image(prompt, output_path="final.png", model="gemini-3-pro-image-preview", resolution="2K")
+```
+
 ## Character Consistency Workflow
 
 Maintain consistent characters across multiple images.
@@ -127,38 +143,6 @@ response = client.models.generate_content(
 ```
 
 **Limits:** Up to 6 reference images for objects.
-
-## Batch Generation Workflow
-
-Generate many images efficiently.
-
-### Using Imagen 4 (fastest for standalone)
-
-```python
-from generate_image import generate_image
-
-subjects = ["cat", "dog", "bird", "rabbit"]
-for subject in subjects:
-    generate_image(
-        f"A photorealistic {subject} portrait",
-        output_path=f"{subject}.png",
-        use_imagen=True
-    )
-```
-
-### Two-Stage Workflow
-
-1. **Explore** with Flash (fast, cheap)
-2. **Finalize** with Pro (quality)
-
-```python
-# Stage 1: Quick drafts
-for i in range(5):
-    generate_image(prompt, output_path=f"draft_{i}.png", model="gemini-2.5-flash-image")
-
-# Stage 2: Final quality
-generate_image(prompt, output_path="final.png", model="gemini-3-pro-image-preview", resolution="2K")
-```
 
 ## Style Transfer Workflow
 

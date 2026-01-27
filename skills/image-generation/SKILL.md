@@ -1,12 +1,12 @@
 ---
 name: Gemini Image Generation
-description: This skill should be used when the user asks to "generate an image", "create an image", "edit an image", "transform this image", "apply style to an image", "make a picture of", "create variations", "upscale image", or mentions "Gemini image", "Nano Banana", "Imagen", or any image generation/editing tasks. Provides guidance for using Google's Gemini image models and Imagen 4.
-version: 0.2.0
+description: This skill should be used when the user asks to "generate an image", "create an image", "edit an image", "transform this image", "apply style to an image", "make a picture of", "create variations", or mentions "Gemini image", "Nano Banana", or any image generation/editing tasks. Provides guidance for using Google's Gemini image models.
+version: 0.3.0
 ---
 
 # Gemini Image Generation
 
-Generate and edit images using Google's Gemini models and Imagen 4.
+Generate and edit images using Google's Gemini models.
 
 ## Quick Start
 
@@ -26,9 +26,9 @@ uv run --with google-genai --with Pillow generate_image.py \
 uv run --with google-genai --with Pillow generate_image.py \
   "A panoramic landscape" -o wide.png -r 2K -a 16:9
 
-# Use Imagen 4 for standalone generation
+# Fast iteration with Flash model
 uv run --with google-genai --with Pillow generate_image.py \
-  "A photorealistic cat" -o cat.png --imagen
+  "Quick sketch" -o draft.png -m gemini-2.5-flash-image
 ```
 
 Or import in Python:
@@ -58,13 +58,10 @@ gcloud auth application-default login
 
 | Model | Best For | Resolution |
 |-------|----------|------------|
-| `gemini-3-pro-image-preview` | Quality, text rendering | 1K-4K |
+| `gemini-3-pro-image-preview` | Quality, text rendering (default) | 1K-4K |
 | `gemini-2.5-flash-image` | Speed, prototyping | 1K |
-| `imagen-4.0-generate-001` | Standalone generation | 1K-2K |
-| `imagen-4.0-ultra-generate-001` | Highest quality | 1K-2K |
-| `imagen-4.0-fast-generate-001` | Fast iteration | 1K-2K |
 
-**Deprecated:** `gemini-2.5-flash-image-preview`, Imagen 3 models
+**Deprecated:** `gemini-2.5-flash-image-preview`
 
 See `references/models.md` for detailed comparison.
 
@@ -111,26 +108,6 @@ response = client.models.generate_content(
 )
 ```
 
-## Imagen 4 API
-
-For standalone generation without conversation:
-
-```python
-response = client.models.generate_images(
-    model="imagen-4.0-generate-001",
-    prompt="A golden retriever in autumn leaves",
-    config=types.GenerateImagesConfig(
-        number_of_images=1,
-        aspect_ratio="16:9"
-    )
-)
-
-for img in response.generated_images:
-    img.image.save("output.png")
-```
-
-**Note:** Imagen 4 doesn't support editing - use Gemini models for that.
-
 ## Multi-turn Chat
 
 For iterative refinement:
@@ -152,7 +129,7 @@ response = chat.send_message("Add rain on the windows")
 When generating variations, use the image grid selector:
 
 ```bash
-# Generate 4 variations
+# Generate 4 variations with Flash (fast)
 for i in 1 2 3 4; do
   uv run ... generate_image.py "A cafe, variation $i" -o /tmp/cafe_$i.png -m gemini-2.5-flash-image
 done

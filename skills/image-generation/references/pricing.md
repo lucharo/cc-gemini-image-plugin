@@ -35,12 +35,6 @@ When editing images, input costs:
 - ~560 tokens per input image
 - ~$0.001 per image at Gemini API rates
 
-### Imagen 4 Pricing
-
-Imagen 4 models may have different pricing. Check:
-- [Vertex AI Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing)
-- [Gemini API Pricing](https://ai.google.dev/gemini-api/docs/pricing)
-
 ## Cost Estimation Examples
 
 ### Single High-Quality Image

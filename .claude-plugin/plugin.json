@@ -1,10 +1,10 @@
 {
   "name": "gemini-image",
-  "version": "0.2.0",
-  "description": "Generate and edit images using Google's Gemini image models and Imagen 4",
+  "version": "0.3.0",
+  "description": "Generate and edit images using Google's Gemini image models",
   "repository": "https://github.com/lucharo/cc-gemini-image-plugin",
   "author": {
     "name": "Luis"
   },
-  "keywords": ["image", "generation", "gemini", "ai", "editing", "imagen"]
+  "keywords": ["image", "generation", "gemini", "ai", "editing"]
 }
