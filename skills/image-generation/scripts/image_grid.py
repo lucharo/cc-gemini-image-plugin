@@ -52,6 +52,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <title>Image Selection Grid</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%234CAF50'/><rect x='15' y='20' width='70' height='50' rx='5' fill='white'/><circle cx='35' cy='40' r='8' fill='%234CAF50'/><path d='M20 65 L45 45 L60 55 L80 35 L80 65 Z' fill='%234CAF50' opacity='0.7'/></svg>">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
