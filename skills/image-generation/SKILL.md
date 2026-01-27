@@ -52,6 +52,7 @@ Set one of these:
 ```bash
 # Option 1: API Key (recommended)
 export GEMINI_API_KEY="your-key-from-aistudio.google.com"
+# GOOGLE_API_KEY also works
 
 # Option 2: Vertex AI
 export GOOGLE_CLOUD_PROJECT="your-project-id"

@@ -195,7 +195,7 @@ def generate_grid(
             copy_text=copy_text.replace("'", "\\'")
         ))
 
-    html = HTML_TEMPLATE.format(cards=''.join(cards))
+    html = HTML_TEMPLATE.replace('{cards}', ''.join(cards))
     output.write_text(html)
     return output
 

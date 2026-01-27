@@ -71,8 +71,8 @@ def generate_image(
         'output.png'
     """
     # Initialize client
-    # Priority: GEMINI_API_KEY > Vertex AI (ADC with project/location)
-    api_key = os.environ.get("GEMINI_API_KEY")
+    # Priority: GEMINI_API_KEY > GOOGLE_API_KEY > Vertex AI (ADC with project/location)
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     project = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
     location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
 
@@ -83,7 +83,7 @@ def generate_image(
     else:
         raise ValueError(
             "No authentication configured. Set either:\n"
-            "  - GEMINI_API_KEY (from aistudio.google.com)\n"
+            "  - GEMINI_API_KEY or GOOGLE_API_KEY (from aistudio.google.com)\n"
             "  - GOOGLE_CLOUD_PROJECT (for Vertex AI with ADC)"
         )
 
