@@ -23,8 +23,8 @@ from PIL import Image
 
 
 # Cost lookup table based on resolution (max dimension in pixels)
-# Source: https://ai.google.dev/gemini-api/docs/imagen#pricing
-# Last updated: 2025-01 (Gemini 2.0 / Imagen 3 pricing)
+# Source: https://ai.google.dev/gemini-api/docs/gemini-3#meet_the_gemini_3_series
+# Last updated: 2025-01 (Gemini 3 pricing)
 COST_BY_RESOLUTION = {
     1024: 0.04,   # 1K
     2048: 0.13,   # 2K
