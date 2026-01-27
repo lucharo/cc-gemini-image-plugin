@@ -109,6 +109,25 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
             color: #666;
             font-size: 13px;
         }
+        .cost-footer {
+            max-width: 1400px;
+            margin: 24px auto 0;
+            padding: 16px 20px;
+            background: #2a2a2a;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .cost-footer .total {
+            color: #4CAF50;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .cost-footer .detail {
+            color: #888;
+        }
     </style>
 </head>
 <body>
@@ -118,6 +137,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
     <div class="grid">
         {cards}
     </div>
+    {cost_footer}
     <script>
         function copyToClipboard(text, label) {
             navigator.clipboard.writeText(text).then(() => {
@@ -154,11 +174,19 @@ def image_to_data_uri(path: Path) -> str:
     return f"data:{mime};base64,{data}"
 
 
+COST_FOOTER_TEMPLATE = '''
+    <div class="cost-footer">
+        <span class="detail">{count} images × ${cost_per:.2f} each</span>
+        <span class="total">Total: ${total:.2f}</span>
+    </div>'''
+
+
 def generate_grid(
     images: list[Path],
     output: Path,
     embed: bool = True,
-    copy_format: str = "I choose {label} ({filename})"
+    copy_format: str = "I choose {label} ({filename})",
+    cost_per_image: float | None = None
 ) -> Path:
     """
     Generate an HTML grid of images.
@@ -168,6 +196,7 @@ def generate_grid(
         output: Output HTML path
         embed: If True, embed images as data URIs (portable, larger file)
         copy_format: Format string for clipboard text. Available vars: {label}, {filename}, {path}
+        cost_per_image: Cost per image in USD (e.g., 0.04 for 1K). If None, no cost shown.
 
     Returns:
         Path to generated HTML
@@ -195,7 +224,17 @@ def generate_grid(
             copy_text=copy_text.replace("'", "\\'")
         ))
 
-    html = HTML_TEMPLATE.replace('{cards}', ''.join(cards))
+    # Generate cost footer if cost provided
+    cost_footer = ""
+    if cost_per_image is not None:
+        total = len(images) * cost_per_image
+        cost_footer = COST_FOOTER_TEMPLATE.format(
+            count=len(images),
+            cost_per=cost_per_image,
+            total=total
+        )
+
+    html = HTML_TEMPLATE.replace('{cards}', ''.join(cards)).replace('{cost_footer}', cost_footer)
     output.write_text(html)
     return output
 
@@ -229,6 +268,12 @@ def main():
         action="store_true",
         help="Open the HTML file in default browser after creation"
     )
+    parser.add_argument(
+        "--cost",
+        type=float,
+        default=0.04,
+        help="Cost per image in USD (default: 0.04 for 1K). Use 0.13 for 2K, 0.24 for 4K. Set to 0 to hide."
+    )
 
     args = parser.parse_args()
 
@@ -239,14 +284,17 @@ def main():
         return 1
 
     output = Path(args.output)
+    cost = args.cost if args.cost > 0 else None
     generate_grid(
         images,
         output,
         embed=not args.no_embed,
-        copy_format=args.copy_format
+        copy_format=args.copy_format,
+        cost_per_image=cost
     )
 
-    print(f"Created {output} with {len(images)} images")
+    cost_msg = f" (${len(images) * args.cost:.2f} total)" if cost else ""
+    print(f"Created {output} with {len(images)} images{cost_msg}")
 
     if args.open:
         webbrowser.open(f"file://{output.absolute()}")
