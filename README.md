@@ -155,6 +155,12 @@ cc-gemini-image-plugin/
 
 ## Changelog
 
+### v0.5.0
+- Auto-detect image resolution for cost calculation (no CLI flag needed)
+- Added pricing source reference for future updates
+- Updated plugin structure to match official Anthropic format
+- Fixed install instructions to use correct `plugin-name@marketplace-name` syntax
+
 ### v0.4.0
 - Added `--refs` parameter for reference images (character/object consistency)
 - Documented reference image limits (character: 5, object: 6, style: 1-2)

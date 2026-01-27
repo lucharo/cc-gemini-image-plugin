@@ -23,6 +23,8 @@ from PIL import Image
 
 
 # Cost lookup table based on resolution (max dimension in pixels)
+# Source: https://ai.google.dev/gemini-api/docs/imagen#pricing
+# Last updated: 2025-01 (Gemini 2.0 / Imagen 3 pricing)
 COST_BY_RESOLUTION = {
     1024: 0.04,   # 1K
     2048: 0.13,   # 2K
@@ -210,18 +212,16 @@ def generate_grid(
     images: list[Path],
     output: Path,
     embed: bool = True,
-    copy_format: str = "I choose {label} ({filename})",
-    show_cost: bool = True
+    copy_format: str = "I choose {label} ({filename})"
 ) -> tuple[Path, float]:
     """
-    Generate an HTML grid of images.
+    Generate an HTML grid of images with auto-detected cost.
 
     Args:
         images: List of image paths
         output: Output HTML path
         embed: If True, embed images as data URIs (portable, larger file)
         copy_format: Format string for clipboard text. Available vars: {label}, {filename}, {path}
-        show_cost: If True, show cost footer based on auto-detected resolution
 
     Returns:
         Tuple of (path to generated HTML, total cost)
@@ -251,23 +251,19 @@ def generate_grid(
             copy_text=copy_text.replace("'", "\\'")
         ))
 
-        if show_cost:
-            costs.append(get_image_cost(img_path))
+        costs.append(get_image_cost(img_path))
 
     # Generate cost footer with auto-detected costs
-    cost_footer = ""
-    total_cost = 0.0
-    if show_cost and costs:
-        total_cost = sum(costs)
-        # Check if all costs are the same
-        if len(set(costs)) == 1:
-            detail = f"{len(images)} images × ${costs[0]:.2f} each"
-        else:
-            detail = f"{len(images)} images (mixed resolutions)"
-        cost_footer = COST_FOOTER_TEMPLATE.format(
-            detail=detail,
-            total=total_cost
-        )
+    total_cost = sum(costs)
+    # Check if all costs are the same
+    if len(set(costs)) == 1:
+        detail = f"{len(images)} images × ${costs[0]:.2f} each"
+    else:
+        detail = f"{len(images)} images (mixed resolutions)"
+    cost_footer = COST_FOOTER_TEMPLATE.format(
+        detail=detail,
+        total=total_cost
+    )
 
     html = HTML_TEMPLATE.replace('{cards}', ''.join(cards)).replace('{cost_footer}', cost_footer)
     output.write_text(html)
@@ -303,11 +299,6 @@ def main():
         action="store_true",
         help="Open the HTML file in default browser after creation"
     )
-    parser.add_argument(
-        "--no-cost",
-        action="store_true",
-        help="Hide cost information (cost is auto-detected from image resolution)"
-    )
 
     args = parser.parse_args()
 
@@ -322,12 +313,10 @@ def main():
         images,
         output,
         embed=not args.no_embed,
-        copy_format=args.copy_format,
-        show_cost=not args.no_cost
+        copy_format=args.copy_format
     )
 
-    cost_msg = f" (${total_cost:.2f} total)" if not args.no_cost else ""
-    print(f"Created {output} with {len(images)} images{cost_msg}")
+    print(f"Created {output} with {len(images)} images (${total_cost:.2f} total)")
 
     if args.open:
         webbrowser.open(f"file://{output.absolute()}")

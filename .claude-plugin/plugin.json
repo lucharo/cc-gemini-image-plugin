@@ -1,8 +1,9 @@
 {
   "name": "gemini-image",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Generate and edit images using Google's Gemini image models",
   "repository": "https://github.com/lucharo/cc-gemini-image-plugin",
+  "homepage": "https://github.com/lucharo/cc-gemini-image-plugin",
   "author": {
     "name": "Luis"
   },

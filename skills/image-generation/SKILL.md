@@ -1,7 +1,7 @@
 ---
 name: Gemini Image Generation
 description: This skill should be used when the user asks to "generate an image", "create an image", "edit an image", "transform this image", "apply style to an image", "make a picture of", "create variations", or mentions "Gemini image", "Nano Banana", or any image generation/editing tasks. Provides guidance for using Google's Gemini image models.
-version: 0.4.0
+version: 0.5.0
 ---
 
 # Gemini Image Generation
