@@ -12,9 +12,11 @@ Generate and edit images using Google's Gemini image models in Claude Code.
 # Add this repo as a marketplace
 claude plugin marketplace add lucharo/cc-gemini-image-plugin
 
-# Install the plugin
-claude plugin install gemini-image
+# Install the plugin (format: plugin-name@marketplace-name)
+claude plugin install gemini-image@cc-gemini-image-plugin
 ```
+
+Or use the interactive UI: run `/plugin`, go to **Discover** tab, find `gemini-image`.
 
 ### From Local Path
 
@@ -26,7 +28,7 @@ git clone https://github.com/lucharo/cc-gemini-image-plugin.git
 claude plugin marketplace add /path/to/cc-gemini-image-plugin
 
 # Install
-claude plugin install gemini-image
+claude plugin install gemini-image@cc-gemini-image-plugin
 ```
 
 ## Prerequisites
@@ -36,6 +38,7 @@ claude plugin install gemini-image
 **Option 1: API Key (Recommended)**
 ```bash
 export GEMINI_API_KEY="your-key-from-aistudio.google.com"
+# GOOGLE_API_KEY also works
 ```
 
 **Option 2: Vertex AI with Application Default Credentials**

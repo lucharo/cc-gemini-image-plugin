@@ -1,6 +1,6 @@
-#!/usr/bin/env -S uv run
+#!/usr/bin/env -S uv run --with Pillow
 # /// script
-# dependencies = []
+# dependencies = ["Pillow"]
 # ///
 """
 Image Grid Generator
@@ -19,6 +19,31 @@ import argparse
 import base64
 from pathlib import Path
 import webbrowser
+from PIL import Image
+
+
+# Cost lookup table based on resolution (max dimension in pixels)
+COST_BY_RESOLUTION = {
+    1024: 0.04,   # 1K
+    2048: 0.13,   # 2K
+    4096: 0.24,   # 4K
+}
+
+
+def get_image_cost(img_path: Path) -> float:
+    """Get cost for an image based on its resolution."""
+    try:
+        with Image.open(img_path) as img:
+            max_dim = max(img.size)
+            # Find the matching resolution tier
+            for res, cost in sorted(COST_BY_RESOLUTION.items()):
+                if max_dim <= res:
+                    return cost
+            # If larger than 4K, use 4K price
+            return COST_BY_RESOLUTION[4096]
+    except Exception:
+        # Default to 1K if we can't read the image
+        return COST_BY_RESOLUTION[1024]
 
 HTML_TEMPLATE = '''<!DOCTYPE html>
 <html>
@@ -176,7 +201,7 @@ def image_to_data_uri(path: Path) -> str:
 
 COST_FOOTER_TEMPLATE = '''
     <div class="cost-footer">
-        <span class="detail">{count} images × ${cost_per:.2f} each</span>
+        <span class="detail">{detail}</span>
         <span class="total">Total: ${total:.2f}</span>
     </div>'''
 
@@ -186,8 +211,8 @@ def generate_grid(
     output: Path,
     embed: bool = True,
     copy_format: str = "I choose {label} ({filename})",
-    cost_per_image: float | None = None
-) -> Path:
+    show_cost: bool = True
+) -> tuple[Path, float]:
     """
     Generate an HTML grid of images.
 
@@ -196,12 +221,14 @@ def generate_grid(
         output: Output HTML path
         embed: If True, embed images as data URIs (portable, larger file)
         copy_format: Format string for clipboard text. Available vars: {label}, {filename}, {path}
-        cost_per_image: Cost per image in USD (e.g., 0.04 for 1K). If None, no cost shown.
+        show_cost: If True, show cost footer based on auto-detected resolution
 
     Returns:
-        Path to generated HTML
+        Tuple of (path to generated HTML, total cost)
     """
     cards = []
+    costs = []
+
     for i, img_path in enumerate(images):
         label = f"#{i + 1}"
         filename = img_path.name
@@ -224,19 +251,27 @@ def generate_grid(
             copy_text=copy_text.replace("'", "\\'")
         ))
 
-    # Generate cost footer if cost provided
+        if show_cost:
+            costs.append(get_image_cost(img_path))
+
+    # Generate cost footer with auto-detected costs
     cost_footer = ""
-    if cost_per_image is not None:
-        total = len(images) * cost_per_image
+    total_cost = 0.0
+    if show_cost and costs:
+        total_cost = sum(costs)
+        # Check if all costs are the same
+        if len(set(costs)) == 1:
+            detail = f"{len(images)} images × ${costs[0]:.2f} each"
+        else:
+            detail = f"{len(images)} images (mixed resolutions)"
         cost_footer = COST_FOOTER_TEMPLATE.format(
-            count=len(images),
-            cost_per=cost_per_image,
-            total=total
+            detail=detail,
+            total=total_cost
         )
 
     html = HTML_TEMPLATE.replace('{cards}', ''.join(cards)).replace('{cost_footer}', cost_footer)
     output.write_text(html)
-    return output
+    return output, total_cost
 
 
 def main():
@@ -269,10 +304,9 @@ def main():
         help="Open the HTML file in default browser after creation"
     )
     parser.add_argument(
-        "--cost",
-        type=float,
-        default=0.04,
-        help="Cost per image in USD (default: 0.04 for 1K). Use 0.13 for 2K, 0.24 for 4K. Set to 0 to hide."
+        "--no-cost",
+        action="store_true",
+        help="Hide cost information (cost is auto-detected from image resolution)"
     )
 
     args = parser.parse_args()
@@ -284,16 +318,15 @@ def main():
         return 1
 
     output = Path(args.output)
-    cost = args.cost if args.cost > 0 else None
-    generate_grid(
+    output, total_cost = generate_grid(
         images,
         output,
         embed=not args.no_embed,
         copy_format=args.copy_format,
-        cost_per_image=cost
+        show_cost=not args.no_cost
     )
 
-    cost_msg = f" (${len(images) * args.cost:.2f} total)" if cost else ""
+    cost_msg = f" (${total_cost:.2f} total)" if not args.no_cost else ""
     print(f"Created {output} with {len(images)} images{cost_msg}")
 
     if args.open:
